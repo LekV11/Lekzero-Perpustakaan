@@ -27,19 +27,17 @@ Route::post('logout', [\App\Http\Controllers\WebAuthController::class, 'logout']
 
 // protected routes
 Route::middleware('jwt.session')->group(function () {
-        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-        // everyone can browse the book list
-        Route::get('books', [BookWebController::class, 'index'])->name('books.index');
+    Route::resource('books', BookWebController::class)
+        ->except(['create','store','edit','update','destroy'])
+        ->names('books');
 
-        // management screens are only for admins
-        Route::middleware('admin')->group(function () {
-            Route::resource('books', BookWebController::class)->except(['index']);
-            Route::resource('categories', CategoryWebController::class);
-            Route::resource('members', MemberWebController::class);
-            Route::resource('loans', LoanWebController::class);
-        });
-
-        // detail book moved after resource to avoid collision with 'create'
-        Route::get('books/{book}', [BookWebController::class, 'show'])->name('books.show');
+    Route::middleware('admin')->group(function () {
+        Route::resource('books', BookWebController::class)
+            ->only(['create','store','edit','update','destroy']);
+        Route::resource('categories', CategoryWebController::class);
+        Route::resource('members', MemberWebController::class);
+        Route::resource('loans', LoanWebController::class);
     });
+});
