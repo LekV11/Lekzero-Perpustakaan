@@ -29,13 +29,10 @@ Route::post('logout', [\App\Http\Controllers\WebAuthController::class, 'logout']
 Route::middleware('jwt.session')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::resource('books', BookWebController::class)
-        ->except(['create','store','edit','update','destroy'])
-        ->names('books');
+    // register books resource once; admin-only actions are handled in controller
+    Route::resource('books', BookWebController::class);
 
     Route::middleware('admin')->group(function () {
-        Route::resource('books', BookWebController::class)
-            ->only(['create','store','edit','update','destroy']);
         Route::resource('categories', CategoryWebController::class);
         Route::resource('members', MemberWebController::class);
         Route::resource('loans', LoanWebController::class);

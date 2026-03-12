@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 
 class BookWebController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('admin')->only(['create','store','edit','update','destroy']);
+    }
     public function index(Request $request)
     {
         $search = $request->query('search');
