@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         // generate administrator account and any other seed data
         $this->call([
             AdminUserSeeder::class,
+            UserSeeder::class,
         ]);
 
         // \App\Models\User::factory(10)->create();

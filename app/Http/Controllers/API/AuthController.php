@@ -12,18 +12,22 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $data = $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
             'role' => 'sometimes|string|in:admin,user',
         ]);
 
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
+
         $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'role' => $data['role'] ?? 'user',
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role ?? 'user',
         ]);
 
         $payload = [
@@ -31,20 +35,19 @@ class AuthController extends Controller
             'name' => $user->name,
             'role' => $user->role,
             'iat' => time(),
-            'exp' => time() + 60*60*24, // 1 day
+            'exp' => time() + 60*60*24*7, // Extended to 7 days for mobile
         ];
         $token = JwtHelper::encode($payload);
 
-        return response()->json(compact('user', 'token'), 201);
+        return $this->sendResponse(['user' => $user, 'token' => $token], 'User registered successfully.', 201);
     }
 
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
 
-        // manually validate credentials
         if (! auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
+            return $this->sendError('Invalid credentials.', ['error' => 'Unauthorised'], 401);
         }
 
         $user = auth()->user();
@@ -53,23 +56,21 @@ class AuthController extends Controller
             'name' => $user->name,
             'role' => $user->role,
             'iat' => time(),
-            'exp' => time() + 60*60*24,
+            'exp' => time() + 60*60*24*7, // Extended to 7 days for mobile
         ];
         $token = JwtHelper::encode($payload);
 
-        return response()->json(compact('token'));
+        return $this->sendResponse(['token' => $token, 'user' => $user], 'User logged in successfully.');
     }
 
     public function me(Request $request)
     {
-        // user already loaded by api.jwt middleware
-        return response()->json(auth()->user());
+        return $this->sendResponse(auth()->user(), 'User profile retrieved successfully.');
     }
 
     public function logout(Request $request)
     {
-        // no server-side invalidation; client should discard token
-        return response()->json(['message' => 'Successfully logged out']);
+        return $this->sendResponse([], 'Successfully logged out.');
     }
 
     public function refresh(Request $request)
