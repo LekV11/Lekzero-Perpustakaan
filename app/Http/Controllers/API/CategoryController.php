@@ -10,39 +10,46 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        return response()->json(Category::all());
+        $categories = Category::all();
+        return $this->sendResponse($categories, 'Categories retrieved successfully.');
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'name' => 'required|string|max:255',
         ]);
 
-        $category = Category::create($request->only('name'));
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
 
-        return response()->json($category, 201);
+        $category = Category::create($request->only('name'));
+        return $this->sendResponse($category, 'Category created successfully.', 201);
     }
 
     public function show(Category $category)
     {
-        return response()->json($category);
+        return $this->sendResponse($category, 'Category retrieved successfully.');
     }
 
     public function update(Request $request, Category $category)
     {
-        $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'name' => 'required|string|max:255',
         ]);
 
-        $category->update($request->only('name'));
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
 
-        return response()->json($category);
+        $category->update($request->only('name'));
+        return $this->sendResponse($category, 'Category updated successfully.');
     }
 
     public function destroy(Category $category)
     {
         $category->delete();
-        return response()->json(null, 204);
+        return $this->sendResponse([], 'Category deleted successfully.', 204);
     }
 }

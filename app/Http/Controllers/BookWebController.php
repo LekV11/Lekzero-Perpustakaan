@@ -90,7 +90,6 @@ class BookWebController extends Controller
 
     public function show(Book $book)
     {
-        // optional detail view (not implemented)
         return redirect()->route('books.index');
     }
 }

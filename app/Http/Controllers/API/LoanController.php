@@ -10,12 +10,13 @@ class LoanController extends Controller
 {
     public function index()
     {
-        return response()->json(Loan::with(['member', 'book'])->get());
+        $loans = Loan::with(['member', 'book'])->get();
+        return $this->sendResponse($loans, 'Loans retrieved successfully.');
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'member_id' => 'required|exists:members,id',
             'book_id' => 'required|exists:books,id',
             'loan_date' => 'required|date',
@@ -23,18 +24,22 @@ class LoanController extends Controller
             'status' => 'required|string|in:borrowed,returned',
         ]);
 
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
+
         $loan = Loan::create($request->all());
-        return response()->json($loan->load(['member', 'book']), 201);
+        return $this->sendResponse($loan->load(['member', 'book']), 'Loan created successfully.', 201);
     }
 
     public function show(Loan $loan)
     {
-        return response()->json($loan->load(['member', 'book']));
+        return $this->sendResponse($loan->load(['member', 'book']), 'Loan retrieved successfully.');
     }
 
     public function update(Request $request, Loan $loan)
     {
-        $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'member_id' => 'sometimes|required|exists:members,id',
             'book_id' => 'sometimes|required|exists:books,id',
             'loan_date' => 'nullable|date',
@@ -42,13 +47,17 @@ class LoanController extends Controller
             'status' => 'sometimes|required|string|in:borrowed,returned',
         ]);
 
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
+
         $loan->update($request->all());
-        return response()->json($loan->load(['member', 'book']));
+        return $this->sendResponse($loan->load(['member', 'book']), 'Loan updated successfully.');
     }
 
     public function destroy(Loan $loan)
     {
         $loan->delete();
-        return response()->json(null, 204);
+        return $this->sendResponse([], 'Loan deleted successfully.', 204);
     }
 }

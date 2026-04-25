@@ -3,13 +3,21 @@
 namespace App\Helpers;
 
 class JwtHelper
-{
-    /**
-     * Encode a payload into a JWT string using HMAC-SHA256.
-     *
-     * @param array $payload
-     * @return string
-     */
+{  
+    public static function create($user): string
+    {
+        $payload = [
+            'sub' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'iat' => time(),
+            'exp' => time() + (60 * 60 * 24), // 24 hours
+        ];
+
+        return self::encode($payload);
+    }
+
     public static function encode(array $payload): string
     {
         $header = ['alg' => 'HS256', 'typ' => 'JWT'];
@@ -25,13 +33,6 @@ class JwtHelper
         return implode('.', $segments);
     }
 
-    /**
-     * Decode a JWT string and return the payload if valid, else throw.
-     *
-     * @param string $token
-     * @return array
-     * @throws \Exception
-     */
     public static function decode(string $token): array
     {
         $parts = explode('.', $token);
@@ -50,7 +51,6 @@ class JwtHelper
             throw new \Exception('Signature verification failed');
         }
 
-        // optional expiration check
         if (isset($payload['exp']) && time() >= $payload['exp']) {
             throw new \Exception('Token expired');
         }

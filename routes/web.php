@@ -7,29 +7,19 @@ use App\Http\Controllers\MemberWebController;
 use App\Http\Controllers\CategoryWebController;
 use App\Http\Controllers\LoanWebController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
-
-// authentication pages
 Route::get('login', [\App\Http\Controllers\WebAuthController::class, 'showLogin'])->name('login');
 Route::post('login', [\App\Http\Controllers\WebAuthController::class, 'login'])->name('login.post');
 Route::get('register', [\App\Http\Controllers\WebAuthController::class, 'showRegister'])->name('register');
 Route::post('register', [\App\Http\Controllers\WebAuthController::class, 'register'])->name('register.post');
 Route::post('logout', [\App\Http\Controllers\WebAuthController::class, 'logout'])->name('logout');
 
-// protected routes
+// Google Auth Routes
+Route::get('auth/google', [\App\Http\Controllers\WebAuthController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('auth/google/callback', [\App\Http\Controllers\WebAuthController::class, 'handleGoogleCallback']);
+
 Route::middleware('jwt.session')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    // register books resource once; admin-only actions are handled in controller
     Route::resource('books', BookWebController::class);
 
     Route::middleware('admin')->group(function () {

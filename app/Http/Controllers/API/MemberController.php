@@ -10,12 +10,13 @@ class MemberController extends Controller
 {
     public function index()
     {
-        return response()->json(Member::all());
+        $members = Member::all();
+        return $this->sendResponse($members, 'Members retrieved successfully.');
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'member_id' => 'required|string|max:50|unique:members,member_id',
             'address' => 'nullable|string',
@@ -23,18 +24,22 @@ class MemberController extends Controller
             'email' => 'nullable|email|max:255',
         ]);
 
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
+
         $member = Member::create($request->all());
-        return response()->json($member, 201);
+        return $this->sendResponse($member, 'Member created successfully.', 201);
     }
 
     public function show(Member $member)
     {
-        return response()->json($member);
+        return $this->sendResponse($member, 'Member retrieved successfully.');
     }
 
     public function update(Request $request, Member $member)
     {
-        $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'name' => 'sometimes|required|string|max:255',
             'member_id' => 'sometimes|required|string|max:50|unique:members,member_id,'.$member->id,
             'address' => 'nullable|string',
@@ -42,13 +47,17 @@ class MemberController extends Controller
             'email' => 'nullable|email|max:255',
         ]);
 
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
+
         $member->update($request->all());
-        return response()->json($member);
+        return $this->sendResponse($member, 'Member updated successfully.');
     }
 
     public function destroy(Member $member)
     {
         $member->delete();
-        return response()->json(null, 204);
+        return $this->sendResponse([], 'Member deleted successfully.', 204);
     }
 }

@@ -16,6 +16,9 @@
         <input type="password" name="password" required class="mt-1 block w-full border rounded px-3 py-2">
         @error('password')<span class="text-red-600 text-sm">{{ $message }}</span>@enderror
     </div>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded">Login</button>
+    <div class="flex items-center space-x-4">
+        <button class="bg-blue-500 text-white px-4 py-2 rounded">Login</button>
+        <a href="{{ route('google.login') }}" class="bg-red-500 text-white px-4 py-2 rounded">Login with Google</a>
+    </div>
 </form>
 @endsection
