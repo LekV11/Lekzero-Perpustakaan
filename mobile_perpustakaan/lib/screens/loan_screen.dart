@@ -37,11 +37,20 @@ class _LoanScreenState extends State<LoanScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: ListTile(
                     leading: const CircleAvatar(child: Icon(Icons.history_edu)),
-                    title: Text(loan['book']?['title'] ?? 'Buku Tidak Diketahui'),
+                    title: Text(
+                      loan['book']?['title'] ?? 'Buku Tidak Diketahui',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Peminjam: ${loan['member']?['name'] ?? '-'}"),
+                        Text(
+                          "Peminjam: ${loan['member']?['name'] ?? '-'}",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         Text("Tgl Pinjam: ${loan['loan_date']}"),
                         const SizedBox(height: 4),
                         Container(

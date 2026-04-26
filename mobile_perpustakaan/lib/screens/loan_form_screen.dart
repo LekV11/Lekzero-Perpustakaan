@@ -83,12 +83,16 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
               Consumer<BookProvider>(
                 builder: (context, provider, child) {
                   return DropdownButtonFormField<String>(
+                    isExpanded: true,
                     value: _selectedBookId,
                     decoration: const InputDecoration(labelText: "Buku"),
                     items: provider.books.map((b) {
                       return DropdownMenuItem(
                         value: b['id'].toString(),
-                        child: Text(b['title']),
+                        child: Text(
+                          b['title'],
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       );
                     }).toList(),
                     onChanged: (v) => setState(() => _selectedBookId = v),
@@ -99,12 +103,16 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
               Consumer<MemberProvider>(
                 builder: (context, provider, child) {
                   return DropdownButtonFormField<String>(
+                    isExpanded: true,
                     value: _selectedMemberId,
                     decoration: const InputDecoration(labelText: "Anggota"),
                     items: provider.members.map((m) {
                       return DropdownMenuItem(
                         value: m['id'].toString(),
-                        child: Text(m['name']),
+                        child: Text(
+                          m['name'],
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       );
                     }).toList(),
                     onChanged: (v) => setState(() => _selectedMemberId = v),
@@ -113,34 +121,42 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              ListTile(
-                title: const Text("Tanggal Pinjam"),
-                subtitle: Text(DateFormat('dd MMMM yyyy').format(_loanDate)),
-                trailing: const Icon(Icons.calendar_today),
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: _loanDate,
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2100),
-                  );
-                  if (picked != null) setState(() => _loanDate = picked);
-                },
+              Card(
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.calendar_today, color: Colors.blue),
+                      title: const Text("Tanggal Pinjam"),
+                      subtitle: Text(DateFormat('dd MMMM yyyy').format(_loanDate)),
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: _loanDate,
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) setState(() => _loanDate = picked);
+                      },
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.event_available, color: Colors.green),
+                      title: const Text("Tanggal Kembali"),
+                      subtitle: Text(_returnDate != null ? DateFormat('dd MMMM yyyy').format(_returnDate!) : "Belum Kembali"),
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: _returnDate ?? DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) setState(() => _returnDate = picked);
+                      },
+                    ),
+                  ],
+                ),
               ),
-              ListTile(
-                title: const Text("Tanggal Kembali"),
-                subtitle: Text(_returnDate != null ? DateFormat('dd MMMM yyyy').format(_returnDate!) : "Belum Kembali"),
-                trailing: const Icon(Icons.calendar_today),
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: _returnDate ?? DateTime.now(),
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2100),
-                  );
-                  if (picked != null) setState(() => _returnDate = picked);
-                },
-              ),
+              const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _status,
                 decoration: const InputDecoration(labelText: "Status"),

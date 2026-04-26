@@ -86,11 +86,20 @@ class _BookScreenState extends State<BookScreen> {
                             )
                           : const Icon(Icons.book),
                     ),
-                    title: Text(book['title'] ?? '-'),
+                    title: Text(
+                      book['title'] ?? '-',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("${book['author']} | Stok: ${book['stock']}"),
+                        Text(
+                          "${book['author']} | Stok: ${book['stock']}",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         if (book['description'] != null && book['description'].toString().isNotEmpty)
                           Text(
                             book['description'],
@@ -115,7 +124,15 @@ class _BookScreenState extends State<BookScreen> {
                           onPressed: () => _showDeleteDialog(book['id']),
                         ),
                       ],
-                    ) : Text(book['category']?['name'] ?? '-'),
+                    ) : SizedBox(
+                      width: 60,
+                      child: Text(
+                        book['category']?['name'] ?? '-',
+                        textAlign: TextAlign.end,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
                   ),
                 );
               },
